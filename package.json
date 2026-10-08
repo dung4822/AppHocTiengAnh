@@ -52,5 +52,8 @@
     "electron@42.11.12": true
   },
   "productName": "Luyen Nghe",
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  }
 }
