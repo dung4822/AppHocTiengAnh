@@ -1,0 +1,29 @@
+appId: com.dung.luyennghe
+productName: Luyen Nghe
+directories:
+  buildResources: build
+  output: dist
+files:
+  - out/**
+  - package.json
+  - '!**/.scratch/**'
+  # Bỏ bớt file onnxruntime của hệ điều hành khác cho nhẹ bộ cài
+  - '!**/node_modules/onnxruntime-node/bin/napi-v3/{darwin,linux}/**'
+  - '!**/node_modules/onnxruntime-node/bin/napi-v3/win32/arm64/**'
+  - '!**/node_modules/onnxruntime-web/**'
+asarUnpack:
+  # Thư viện native và file voice của Kokoro phải nằm ngoài file .asar
+  - '**/node_modules/better-sqlite3/**'
+  - '**/node_modules/onnxruntime-node/**'
+  - '**/node_modules/sharp/**'
+  - '**/node_modules/@img/**'
+  - '**/node_modules/kokoro-js/voices/**'
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: LuyenNghe-Setup-${version}.${ext}
+npmRebuild: false

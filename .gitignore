@@ -1,0 +1,14 @@
+node_modules/
+out/
+dist/
+.scratch/
+APIKey.txt
+*.log
+LuyenNgheData/
+LuyenNghe-App/
+
+# Local environment secrets
+.env
+.env.*
+!.env.example
+!.env.sample
