@@ -13,12 +13,12 @@ import { clusterPendingVocab } from './unitService'
 import { LOOKUP_SYSTEM, buildLookupUserMessage, lookupSchema, type LookupJson } from '../prompts/lookupPrompt'
 
 // Khóa cache: dạng gốc nếu là 1 từ (went → go), nguyên cụm nếu là cụm
-function cacheKey(term: string): string {
+export function cacheKey(term: string): string {
   const norm = normalizeTerm(term)
   return norm.includes(' ') ? norm : lemmaOf(norm)
 }
 
-function findSavedVocab(term: string): number | null {
+export function findSavedVocab(term: string): number | null {
   const db = getDb()
   const get = db.prepare('SELECT id FROM vocab WHERE text_normalized = ?')
   const norm = normalizeTerm(term)

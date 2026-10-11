@@ -44,3 +44,10 @@ export function modelCacheDir(): string {
   mkdirSync(dir, { recursive: true })
   return dir
 }
+
+// Audio đọc câu theo yêu cầu (trợ lý chat, câu ví dụ khi tra từ) — tạo một lần rồi dùng lại
+export function sayAudioDir(): string {
+  const dir = join(audioRoot(), 'say')
+  mkdirSync(dir, { recursive: true })
+  return dir
+}

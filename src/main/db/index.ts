@@ -7,9 +7,10 @@ import m002 from './migrations/002_review.sql?raw'
 import m003 from './migrations/003_lesson_enrich.sql?raw'
 import m004 from './migrations/004_words.sql?raw'
 import m005 from './migrations/005_units_listening.sql?raw'
+import m006 from './migrations/006_lesson_done_at.sql?raw'
 
 // Danh sách migration theo thứ tự. Thêm file mới thì thêm vào cuối mảng.
-const MIGRATIONS: string[] = [m001, m002, m003, m004, m005]
+const MIGRATIONS: string[] = [m001, m002, m003, m004, m005, m006]
 
 let db: Database.Database | null = null
 

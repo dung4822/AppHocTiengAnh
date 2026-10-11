@@ -3,11 +3,13 @@ import { api, call } from './api'
 import { AppProvider, useApp, type Route } from './appState'
 import Sidebar from './components/Sidebar'
 import Toaster from './components/Toaster'
+import ChatWidget from './components/ChatWidget'
 import HomePage from './pages/HomePage'
 import LessonPage from './pages/LessonPage'
 import VocabPage from './pages/VocabPage'
 import SettingsPage from './pages/SettingsPage'
 import ReviewPage from './pages/ReviewPage'
+import JournalPage from './pages/JournalPage'
 
 export type { Route }
 
@@ -44,7 +46,9 @@ function Shell() {
         {route.page === 'review' && <ReviewPage />}
         {route.page === 'vocab' && <VocabPage />}
         {route.page === 'settings' && <SettingsPage />}
+        {route.page === 'journal' && <JournalPage />}
       </div>
+      <ChatWidget />
       <Toaster />
     </div>
   )

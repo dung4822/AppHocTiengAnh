@@ -5,6 +5,7 @@ import { api, call, errMsg } from '../api'
 import { useApp } from '../appState'
 import { usePlayer } from '../usePlayer'
 import { Kbd, LeechBox } from '../components/ui'
+import ReviewForecast from '../components/ReviewForecast'
 
 const BUTTONS: { rating: ReviewRating; label: string; c: string; bg: string }[] = [
   { rating: 1, label: 'Quên', c: 'var(--err)', bg: 'var(--err-soft)' },
@@ -179,7 +180,10 @@ export default function ReviewPage() {
             </div>
           ) : !card ? (
             // ----- Hết thẻ: tóm tắt phiên -----
-            <SessionDone history={history} onUndo={undo} onHome={() => nav({ page: 'home' })} />
+            <>
+              <SessionDone history={history} onUndo={undo} onHome={() => nav({ page: 'home' })} />
+              <ReviewForecast defaultOpen refreshKey={history.length} />
+            </>
           ) : (
             <>
               <section aria-label="Thẻ ôn tập" className="flex flex-col overflow-hidden rounded-[20px] border border-line bg-surface shadow-card">
@@ -293,6 +297,7 @@ export default function ReviewPage() {
                 <span>R · nghe lại</span>
                 <span>Ctrl+Z · hoàn tác</span>
               </div>
+              <ReviewForecast refreshKey={history.length} />
             </>
           )}
           {error && <p className="m-0 rounded-[10px] bg-err-soft px-4 py-3 text-err">{error}</p>}

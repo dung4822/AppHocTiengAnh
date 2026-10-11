@@ -57,8 +57,8 @@ src/main/
     tts/                     TtsProvider (interface), KokoroProvider (main), ttsWorker (process riêng)
 src/renderer/src/
   App.tsx                    Điều hướng giữa các trang
-  pages/                     HomePage, LessonPage, ReviewPage, VocabPage, SettingsPage
-  components/                LookupPanel, ScriptView, ProgressBox
+  pages/                     HomePage, LessonPage, ReviewPage, VocabPage, SettingsPage, JournalPage
+  components/                LookupPanel, ScriptView, ChatWidget (trợ lý nổi), SpeakButton (nút loa), ReviewForecast
   usePlayer.ts               Phát nối các câu, đổi tốc độ bằng playbackRate
 ```
 
@@ -131,6 +131,25 @@ Thiết kế đúc kết từ Anki, LingQ, Language Reactor và nghiên cứu v�
   gửi về mỗi 15 giây; thống kê hôm nay, 7 ngày, tổng, chuỗi ngày liên tiếp (≥ 1 phút/ngày). Thu nhỏ cửa sổ vẫn nghe tiếp được.
 - **Gặp lại trong bài nghe**: chọn cụm ôn theo điểm — xác suất còn nhớ R của FSRS trong vùng 70–92%, từ hay quên, số lần gặp ít,
   trừ điểm nếu vừa gặp trong 2 ngày.
+
+### Trợ lý diễn đạt (chat nổi) — `services/chatService.ts`, `components/ChatWidget.tsx`
+
+- Nút tròn tím nổi trên mọi trang (`App.tsx` gắn `<ChatWidget />` ngoài các trang). Kéo nút hoặc thanh tiêu đề để di chuyển;
+  vị trí lưu trong `localStorage` theo khoảng cách tới mép phải/dưới (đổi kích thước cửa sổ vẫn bám góc). Esc để đóng.
+- Gõ 1–4 từ tiếng Anh → tra từ luôn (không gọi AI để đoán ý), hiện bằng `LookupPanel` (dùng chung cache + nút lưu thẻ).
+- Câu khác → **prompt T** (`prompts/chatPrompt.ts`) tự phân loại: `express` (1–2 cách người bản xứ hay dùng nhất + 2 ví dụ
+  + cảnh báo dịch word-by-word), `lookup`, hoặc `answer` (hỏi tiếp, so sánh). Gửi kèm 6 lượt chat gần nhất. ≈ $0.0006/câu hỏi.
+- **Audio**: nút loa gọi `tts:say` → Kokoro offline đọc câu, lưu `audio/say/<sha1>.mp3` (lần sau phát ngay). Khi AI trả lời,
+  app tạo sẵn audio các câu ví dụ ở nền. **Lưu thành thẻ** copy file đó sang `audio/vocab/<id>.mp3` → thẻ nghe có audio,
+  thẻ nói (nghĩa + câu tiếng Việt → nói câu tiếng Anh) dùng đúng để luyện cách diễn đạt.
+- Lưu thẻ cũng ghi sẵn vào `lookup_cache` (đủ ví dụ + cách dùng) → mở thẻ ở trang Từ vựng không tốn API.
+- Lịch sử chat lưu `localStorage` (40 tin gần nhất), nút thùng rác để xóa.
+
+### Lịch ôn sắp tới — `getReviewForecast()` trong `reviewService.ts`, `components/ReviewForecast.tsx`
+
+Trang Ôn tập có khung "Lịch ôn sắp tới" (14 ngày): số thẻ đã học tới hạn mỗi ngày (theo `due` của FSRS, hôm nay gồm cả thẻ quá
+hạn) + thẻ mới dự kiến (chia theo giới hạn thẻ mới/ngày). Bấm một ngày để xem các từ sẽ gặp lại. Chỉ là ước tính: không tính
+trước các lần ôn lại sinh ra từ thẻ mới hoặc thẻ bấm "Quên".
 
 ### Ôn tập ngắt quãng (Giai đoạn 2) — `src/main/services/reviewService.ts`
 

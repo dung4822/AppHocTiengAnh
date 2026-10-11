@@ -3,7 +3,7 @@ import type { HomeStats, LessonListItem, ProgressEvent, ReviewCounts } from '@sh
 import { api, call, errMsg } from './api'
 
 // "Điều hướng" đơn giản bằng state, không cần thư viện router
-export type Route = { page: 'home' } | { page: 'lesson'; id: number } | { page: 'vocab' } | { page: 'review' } | { page: 'settings' }
+export type Route = { page: 'home' } | { page: 'lesson'; id: number } | { page: 'vocab' } | { page: 'review' } | { page: 'settings' } | { page: 'journal' }
 
 // ===== Tiến trình tạo bài: 9 giai đoạn hiển thị (map từ ProgressEvent.stage của main) =====
 export const GEN_STAGES = [

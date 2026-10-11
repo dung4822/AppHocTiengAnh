@@ -14,6 +14,7 @@ const api: AppApi = {
   moveUserData: () => ipcRenderer.invoke('storage:move'),
 
   getHomeStats: () => ipcRenderer.invoke('home:stats'),
+  getProgress: () => ipcRenderer.invoke('progress:get'),
   listTopics: () => ipcRenderer.invoke('topics:list'),
   listLessons: () => ipcRenderer.invoke('lessons:list'),
   createLesson: (topic) => ipcRenderer.invoke('lessons:create', topic),
@@ -37,6 +38,11 @@ const api: AppApi = {
   getNextReviewCard: (lastVocabId) => ipcRenderer.invoke('review:next', lastVocabId),
   answerReview: (cardId, rating) => ipcRenderer.invoke('review:answer', cardId, rating),
   undoReview: (logId) => ipcRenderer.invoke('review:undo', logId),
+  getReviewForecast: (days) => ipcRenderer.invoke('review:forecast', days),
+
+  askChat: (message, history) => ipcRenderer.invoke('chat:ask', message, history),
+  saveExpression: (input) => ipcRenderer.invoke('chat:save', input),
+  sayText: (text) => ipcRenderer.invoke('tts:say', text),
 
   addListeningTime: (seconds, source) => ipcRenderer.invoke('listening:add', seconds, source),
 

@@ -11,7 +11,7 @@ import { getApiKey, getSettings } from './settingsService'
 //  - Tắt thinking mode: thinking = { type: 'disabled' } (mặc định model bật thinking)
 //  - usage có prompt_cache_hit_tokens / prompt_cache_miss_tokens để tính tiền cache
 
-export type Purpose = 'lesson' | 'rewrite' | 'grading' | 'lookup' | 'grammar' | 'annotate' | 'rescue' | 'units'
+export type Purpose = 'lesson' | 'rewrite' | 'grading' | 'lookup' | 'grammar' | 'annotate' | 'rescue' | 'units' | 'chat'
 
 export interface CallOptions {
   purpose: Purpose

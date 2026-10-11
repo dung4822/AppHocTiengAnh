@@ -3,6 +3,7 @@ import { Check, Lightbulb, Plus, X } from 'lucide-react'
 import type { LookupContext, LookupResult } from '@shared/types'
 import { api, call, errMsg } from '../api'
 import { FreqMeter } from './ui'
+import SpeakButton from './SpeakButton'
 
 interface Props {
   term: string
@@ -109,7 +110,12 @@ export default function LookupPanel({ term, ctx, onClose, embedded, onSaved }: P
                       <span className="chip bg-accent-soft px-2 py-px text-[11px] text-accent-text">nghĩa trong bài</span>
                     )}
                   </span>
-                  {m.example_en && <span className="font-serif text-[15px]">{m.example_en}</span>}
+                  {m.example_en && (
+                    <span className="flex items-start gap-2">
+                      <span className="font-serif text-[15px]">{m.example_en}</span>
+                      <SpeakButton text={m.example_en} size={13} className="h-6 w-6" />
+                    </span>
+                  )}
                   {m.example_vi && <span className="text-[13px] text-fg3">{m.example_vi}</span>}
                 </div>
               </li>

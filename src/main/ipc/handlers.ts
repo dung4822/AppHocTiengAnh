@@ -3,7 +3,7 @@ import { closeDb } from '../db'
 import { DATA_FOLDER_NAME, moveDataDir } from '../dataLocation'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import type { GradeInput, IpcResult, LookupContext, ProgressEvent, ReviewRating, VocabFilter } from '@shared/types'
+import type { ChatTurn, GradeInput, IpcResult, LookupContext, ProgressEvent, ReviewRating, SaveExpressionInput, VocabFilter } from '@shared/types'
 import { toUserMessage, UserError } from '../errors'
 import { previewAudioDir, userDataDir } from '../paths'
 import { VOICES } from '../config'
@@ -25,8 +25,10 @@ import { setWordStatus } from '../services/wordService'
 import { deleteVocab, listVocab, setVocabSuspended } from '../services/vocabService'
 import { getMonthUsage, getStorageInfo } from '../services/usageService'
 import { tts } from '../services/tts/kokoroProvider'
-import { answerCard, getNextCard, getReviewCounts, undoReview } from '../services/reviewService'
+import { answerCard, getNextCard, getReviewCounts, getReviewForecast, undoReview } from '../services/reviewService'
+import { askChat, saveExpression, sayText } from '../services/chatService'
 import { addListeningTime, type ListenSource } from '../services/listeningService'
+import { getProgress } from '../services/progressService'
 import { audioUrl, toRelativeAudioPath } from '../services/audioUrl'
 
 // Bọc mỗi handler: mọi lỗi được bắt lại và trả về thông báo tiếng Việt, app không bao giờ crash vì lỗi API.
@@ -91,6 +93,7 @@ export function registerIpcHandlers(getWindow: () => BrowserWindow | null): void
 
   // ----- Bài học -----
   handle('home:stats', () => getHomeStats())
+  handle('progress:get', () => getProgress())
   handle('topics:list', () => listTopics())
   handle('lessons:list', () => listLessons())
   handle('lessons:create', async (topic: string | null) => {
@@ -138,4 +141,10 @@ export function registerIpcHandlers(getWindow: () => BrowserWindow | null): void
   handle('review:next', (lastVocabId: number | null) => getNextCard(lastVocabId))
   handle('review:answer', (cardId: number, rating: ReviewRating) => ({ logId: answerCard(cardId, rating) }))
   handle('review:undo', (logId: number) => undoReview(logId))
+  handle('review:forecast', (days: number) => getReviewForecast(Math.min(60, Math.max(1, Math.round(days) || 14))))
+
+  // ----- Trợ lý chat nổi -----
+  handle('chat:ask', (message: string, history: ChatTurn[]) => askChat(message, Array.isArray(history) ? history : []))
+  handle('chat:save', (input: SaveExpressionInput) => saveExpression(input))
+  handle('tts:say', (text: string) => sayText(String(text ?? '')))
 }

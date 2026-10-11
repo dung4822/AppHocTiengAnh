@@ -8,7 +8,7 @@ import {
   LEARNING_STEPS,
   RELEARNING_STEPS
 } from '../config'
-import type { CardDirection, ReviewCardView, ReviewCounts, ReviewRating } from '@shared/types'
+import type { CardDirection, ReviewCardView, ReviewCounts, ReviewForecast, ReviewForecastDay, ReviewRating } from '@shared/types'
 import { getSettings } from './settingsService'
 import { audioUrl } from './audioUrl'
 import { generateRescue, updateLeechFlag } from './leechService'
@@ -375,4 +375,43 @@ export function updateVocabStatus(vocabId: number): void {
     status = cards.length === 2 && cards.every((c) => c.stability >= KNOWN_STABILITY_DAYS) ? 'known' : 'learning'
   }
   db.prepare('UPDATE vocab SET status = ? WHERE id = ?').run(status, vocabId)
+}
+
+// ----- Lịch ôn sắp tới (ước tính) cho trang Ôn tập -----
+// Thẻ đã học: đếm theo ngày tới hạn (FSRS đã tính sẵn). Hôm nay gồm cả thẻ quá hạn.
+// Thẻ mới: chia đều theo giới hạn "thẻ mới/ngày". Không tính trước các lần ôn lại sinh ra từ thẻ mới → chỉ là ước tính.
+const FORECAST_WORDS_PER_DAY = 12
+
+export function getReviewForecast(days = 14, now = Date.now()): ReviewForecast {
+  const db = getDb()
+  const settings = getSettings()
+  const start = dayStart(now)
+  const end = start + days * DAY
+
+  const buckets: ReviewForecastDay[] = []
+  for (let i = 0; i < days; i++) {
+    const d = new Date(start + i * DAY + 12 * 3600_000) // giữa ngày → tránh lệch khi đổi giờ
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    buckets.push({ day: key, due: 0, newCards: 0, words: [] })
+  }
+
+  const rows = db
+    .prepare(`SELECT c.due, v.text FROM review_cards c ${NOT_SUSPENDED} WHERE c.state IN (1, 2, 3) AND c.due < ? ORDER BY c.due`)
+    .all(end) as { due: number; text: string }[]
+  for (const r of rows) {
+    const b = buckets[Math.max(0, Math.floor((r.due - start) / DAY))]
+    b.due++
+    if (b.words.length < FORECAST_WORDS_PER_DAY && !b.words.includes(r.text)) b.words.push(r.text)
+  }
+
+  const newToday = getReviewCounts(now).newCount
+  const newTotal = (db.prepare(`SELECT COUNT(*) AS n FROM review_cards c ${NOT_SUSPENDED} WHERE c.state = 0`).get() as { n: number }).n
+  let left = Math.max(0, newTotal - newToday)
+  buckets[0].newCards = newToday
+  for (let i = 1; i < days && left > 0; i++) {
+    buckets[i].newCards = Math.min(settings.newPerDay, left)
+    left -= buckets[i].newCards
+  }
+
+  return { days: buckets, reviewsPerDay: settings.reviewsPerDay, newLeftAfter: left }
 }

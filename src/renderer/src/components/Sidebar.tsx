@@ -1,5 +1,7 @@
-import { BookOpen, Flame, Headphones, Layers, SlidersHorizontal, Sun } from 'lucide-react'
+import { BookOpen, CalendarDays, Flame, Layers, SlidersHorizontal, Sun } from 'lucide-react'
 import type { LessonListItem } from '@shared/types'
+// Logo app (sinh bởi scripts/make-icon.mjs), nét vẽ dùng currentColor để theo màu chữ
+import logoMark from '../assets/logo-mark.svg?raw'
 import { useApp, type Route } from '../appState'
 import { formatMinutes } from '../format'
 
@@ -41,9 +43,11 @@ export default function Sidebar() {
       className="flex w-[236px] flex-none flex-col gap-[22px] overflow-y-auto border-r border-line bg-surface px-3.5 py-[18px] max-[1000px]:w-[68px]"
     >
       <div className="flex items-center gap-2.5 px-2 py-0.5">
-        <div className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg bg-ink text-onink">
-          <Headphones size={17} strokeWidth={2} />
-        </div>
+        <div
+          aria-hidden="true"
+          className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg bg-ink text-onink [&>svg]:h-[23px] [&>svg]:w-[23px]"
+          dangerouslySetInnerHTML={{ __html: logoMark }}
+        />
         <div className="text-[15px] font-bold tracking-[-0.01em] max-[1000px]:hidden">Luyện Nghe</div>
       </div>
 
@@ -56,6 +60,7 @@ export default function Sidebar() {
           stats && stats.dueToday > 0 ? <span className="chip bg-blue-soft px-2 py-px text-blue">{stats.dueToday}</span> : null
         )}
         {item('vocab', 'Từ vựng', <BookOpen size={17} strokeWidth={1.8} />, stats ? <span className="text-xs text-fg3">{stats.vocabCount}</span> : null)}
+        {item('journal', 'Nhật ký học', <CalendarDays size={17} strokeWidth={1.8} />)}
         {item('settings', 'Cài đặt', <SlidersHorizontal size={17} strokeWidth={1.8} />)}
       </div>
 

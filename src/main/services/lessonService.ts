@@ -578,7 +578,7 @@ export function finishLesson(lessonId: number, markKnown = false): void {
     if (marked) console.log(`[words] đã đánh dấu ${marked} từ là "đã biết" (bài ${lessonId})`)
   }
   db.transaction(() => {
-    const changed = db.prepare("UPDATE lessons SET status = 'done' WHERE id = ? AND status != 'done'").run(lessonId).changes
+    const changed = db.prepare("UPDATE lessons SET status = 'done', done_at = datetime('now') WHERE id = ? AND status != 'done'").run(lessonId).changes
     if (changed === 0) return // đã hoàn thành trước đó → không cộng thêm lần nữa
     db.prepare(
       `UPDATE vocab SET times_seen = times_seen + 1, last_seen_at = datetime('now')

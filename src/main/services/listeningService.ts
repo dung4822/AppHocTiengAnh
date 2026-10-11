@@ -9,7 +9,7 @@ import { dayStart } from './reviewService'
 
 export type ListenSource = 'lesson' | 'review' | 'other'
 
-function dayKey(ms: number): string {
+export function dayKey(ms: number): string {
   const d = new Date(dayStart(ms))
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }

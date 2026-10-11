@@ -47,6 +47,19 @@ export interface ReviewCardView {
   counts: ReviewCounts
 }
 
+// Lịch ôn sắp tới (ước tính) — mỗi phần tử là một ngày, bắt đầu từ hôm nay
+export interface ReviewForecastDay {
+  day: string // YYYY-MM-DD (mốc 4 giờ sáng)
+  due: number // số thẻ đã học tới hạn ngày đó (hôm nay gồm cả thẻ quá hạn)
+  newCards: number // số thẻ mới dự kiến học (theo giới hạn thẻ mới/ngày)
+  words: string[] // vài từ/cụm tới hạn ngày đó (tối đa 12)
+}
+export interface ReviewForecast {
+  days: ReviewForecastDay[]
+  reviewsPerDay: number
+  newLeftAfter: number // thẻ mới còn lại sau khoảng dự báo
+}
+
 export interface AnswerReviewResult {
   logId: number
 }
@@ -291,6 +304,50 @@ export interface HomeStats {
   listening: ListeningStats
 }
 
+// Số liệu một ngày cho trang "Thành quả" (day = YYYY-MM-DD, tính theo mốc 4 giờ sáng)
+export interface ProgressDay {
+  day: string
+  listenSeconds: number
+  newWords: number // thẻ từ/cụm mới thêm
+  knownWords: number // từ đánh dấu "đã biết"
+  reviews: number // lượt ôn thẻ
+  lessonsDone: number
+}
+
+export interface ProgressData {
+  today: string
+  days: ProgressDay[] // 371 ngày liên tục, cũ → mới
+}
+
+// ===== Trợ lý chat nổi =====
+export interface ChatExample {
+  en: string
+  vi: string
+}
+export interface ChatExpression {
+  text: string // cụm ở dạng từ điển, lưu thành thẻ được
+  meaningVi: string
+  usageVi: string // khi nào người bản xứ dùng, sắc thái
+  examples: ChatExample[]
+  savedVocabId: number | null
+}
+export type ChatReply =
+  | { kind: 'express'; expressions: ChatExpression[]; avoidVi: string | null }
+  | { kind: 'lookup'; term: string }
+  | { kind: 'answer'; answerVi: string }
+// Một lượt chat dạng chữ gọn, gửi kèm câu hỏi mới để AI hiểu ngữ cảnh
+export interface ChatTurn {
+  role: 'user' | 'assistant'
+  text: string
+}
+export interface SaveExpressionInput {
+  text: string
+  meaningVi: string
+  usageVi: string
+  examples: ChatExample[]
+  exampleIdx: number // câu ví dụ dùng cho thẻ
+}
+
 export interface UsageSummary {
   month: string
   calls: number
@@ -330,6 +387,7 @@ export interface AppApi {
   moveUserData(): Promise<IpcResult<string | null>>
 
   getHomeStats(): Promise<IpcResult<HomeStats>>
+  getProgress(): Promise<IpcResult<ProgressData>>
   listTopics(): Promise<IpcResult<string[]>>
   listLessons(): Promise<IpcResult<LessonListItem[]>>
   createLesson(topic: string | null): Promise<IpcResult<number>>
@@ -359,6 +417,13 @@ export interface AppApi {
   getNextReviewCard(lastVocabId: number | null): Promise<IpcResult<ReviewCardView | null>>
   answerReview(cardId: number, rating: ReviewRating): Promise<IpcResult<AnswerReviewResult>>
   undoReview(logId: number): Promise<IpcResult<void>>
+  getReviewForecast(days: number): Promise<IpcResult<ReviewForecast>>
+
+  // Trợ lý chat nổi
+  askChat(message: string, history: ChatTurn[]): Promise<IpcResult<ChatReply>>
+  saveExpression(input: SaveExpressionInput): Promise<IpcResult<SaveVocabResult>>
+  // Đọc một câu tiếng Anh bằng giọng offline (có cache) → URL audio
+  sayText(text: string): Promise<IpcResult<string>>
 
   // Cộng thời gian nghe thật (giây) — giao diện đo khi audio đang phát
   addListeningTime(seconds: number, source: 'lesson' | 'review' | 'other'): Promise<IpcResult<void>>
